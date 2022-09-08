@@ -1,0 +1,19 @@
+version: 2
+  jobs:
+    test:
+      docker:
+        - image: circleci/node:16.17
+      steps:
+        - checkout
+        - run: echo "Running tests"
+        - run: npm ci
+        - run: npm test
+
+workflows:
+  version: 2
+    test_build:
+      jobs:
+        - test
+        - build:
+          requires:
+            - test
