@@ -56,6 +56,7 @@ module.exports = function autoRecord() {
   let routesByTestId = {};
   // For recording, stores data recorded from hitting the real endpoints
   let routes = [];
+
   // Stores any fixtures that need to be added
   const addFixture = {};
   // Stores any fixtures that need to be removed
@@ -84,7 +85,7 @@ module.exports = function autoRecord() {
         return;
       }
 
-      req.reply((res) => {
+      req.on('after:response', (res) => {
         const url = req.url;
         const status = res.statusCode;
         const method = req.method;
@@ -98,7 +99,6 @@ module.exports = function autoRecord() {
             whitelistHeaderRegexes.some((regex) => regex.test(key)),
           )
           .reduce((obj, [key, value]) => ({ ...obj, [key]: value }), {});
-
         // We push a new entry into the routes array
         // Do not rerecord duplicate requests
         if (
@@ -110,7 +110,7 @@ module.exports = function autoRecord() {
               // when the response has changed for an identical request signature
               // add this entry as well.  This is useful for polling-oriented endpoints
               // that can have varying responses.
-              route.response === data,
+              route.data === data,
           )
         ) {
           routes.push({ url, method, status, data, body, headers });
@@ -151,32 +151,28 @@ module.exports = function autoRecord() {
 
       const createStubbedRoute = (method, url) => {
         let index = 0;
-        const response = sortedRoutes[method][url][index];
 
-        cy.intercept(
-          {
-            url,
-            method,
-          },
-          (req) => {
-            req.reply((res) => {
-              const newResponse = sortedRoutes[method][url][index];
-              res.send(
-                newResponse.status,
-                newResponse.fixtureId
-                  ? {
-                      fixture: `${fixturesFolderSubDirectory}/${newResponse.fixtureId}.json`,
-                    }
-                  : newResponse.response,
-                newResponse.headers,
-              );
+        cy.intercept(method, url, req => {
+          const newResponse = sortedRoutes[method][url][index];
 
-              if (sortedRoutes[method][url].length > index + 1) {
-                index++;
-              }
+          if (newResponse.fixtureId) {
+            req.reply({
+              statusCode: newResponse.status,
+              headers: newResponse.headers,
+              fixture: `${fixturesFolderSubDirectory}/${newResponse.fixtureId}.json`,
             });
-          },
-        );
+          } else {
+            req.reply({
+              statusCode: newResponse.status,
+              headers: newResponse.headers,
+              body: newResponse.response,
+            });
+          }
+
+          if (sortedRoutes[method][url].length > index + 1) {
+            index++;
+          }
+        });
       };
 
       // Stub all recorded routes
