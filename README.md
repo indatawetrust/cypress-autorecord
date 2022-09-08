@@ -1,3 +1,5 @@
+> :warning: This project has been modified to run on cypress 10 and above. May not work correctly for versions before cypress 10.
+
 # Cypress Autorecord
 
 Cypress Autorecord is a plugin built to be used with Cypress.io. It simplifies mocking by auto-recording/stubbing HTTP interactions and automating the process of updating/deleting recordings. Spend more time writing integration tests instead of managing your mock data. Refer to the [changelog](https://github.com/Nanciee/cypress-autorecord/blob/master/CHANGELOG.md) for more details on all the changes.
@@ -10,18 +12,27 @@ Version 3 is now compatible with Cypress 6 and 7 and includes a few fixes. If yo
 Install from npm
 
 ```
-npm install --save-dev cypress-autorecord
+npm install --save-dev @cond/cypress-autorecord
 ```
 
-Add this snippet in your project's `/cypress/plugins/index.js`
+Add the plugin to the main configuration as follows
 
 ```js
+const { defineConfig } = require('cypress');
 const fs = require('fs');
 const autoRecord = require('cypress-autorecord/plugin');
 
-module.exports = (on, config) => {
-  autoRecord(on, config, fs);
-};
+module.exports = defineConfig({
+  e2e: {
+    specPattern: '**/*spec.{js,jsx,ts,tsx}',
+    async setupNodeEvents(on, config) {
+      autoRecord(on, config, fs);
+  
+      return config;
+    },
+  },
+});
+
 ```
 To allow for auto-recording and stubbing to work, require cypress-autorecord in each of your test file and call the function at the beginning of your parent `describe` block.
 
@@ -59,50 +70,42 @@ describe('Home Page', function() {
 ```
 This will force the test to record over your existent mocks for **ONLY** this test on your next run.
 
-This can also be done through the configurations by adding the test name in the file `cypress.json`:
+This can also be done through the configurations by adding the test name in the file `cypress.config.js`:
 
 ```json
-{
   "autorecord": {
     "recordTests": ["my awesome test"]
   }
-}
 ```
 
 Alternatively, you can update recordings for all tests by setting `forceRecord` to `true` before rerunning your tests:
 
 ```json
-{
   "autorecord": {
     "forceRecord": true
   }
-}
 ```
 
 ## Removing Stale Mocks
 
-Stale mocks that are no longer being used can be automatically removed when you run your tests by setting `cleanMocks` to `true` in the file `cypress.json`:
+Stale mocks that are no longer being used can be automatically removed when you run your tests by setting `cleanMocks` to `true` in the file `cypress.config.js`:
 
 ```json
-{
   "autorecord": {
     "cleanMocks": true
   }
-}
 ```
 
 **_NOTE: Only mocks that are used during the run are considered "active". Make sure to only set `cleanMocks` to `true` when you are running ALL your tests. Remove any unintentional `.only` or `.skip`._**
 
 ## Set Recording Pattern For Cypress Intercept
 
-By default autorecorder is recording all outgoing requests but if you want to record only specific calls based on pattern(Ex. just record api calls on backend), you can set `interceptPattern` in `cypress.json`. it can be string, regex or glob
+By default autorecorder is recording all outgoing requests but if you want to record only specific calls based on pattern(Ex. just record api calls on backend), you can set `interceptPattern` in `cypress.config.js`. it can be string, regex or glob
 
 ```json
-{
   "autorecord": {
     "interceptPattern": "http://localhost:3000/api/*"
   }
-}
 ```
 
 ## How It Works
