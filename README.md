@@ -1,5 +1,7 @@
 > :warning: This project has been modified to run on cypress 10 and above. May not work correctly for versions before cypress 10. For older versions you can try using the main package from which this package was cloned. https://github.com/Nanciee/cypress-autorecord
 
+[![CircleCI](https://dl.circleci.com/status-badge/img/gh/indatawetrust/cypress-autorecord/tree/master.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/indatawetrust/cypress-autorecord/tree/master)
+
 # Cypress Autorecord
 
 Cypress Autorecord is a plugin built to be used with Cypress.io. It simplifies mocking by auto-recording/stubbing HTTP interactions and automating the process of updating/deleting recordings. Spend more time writing integration tests instead of managing your mock data. Refer to the [changelog](https://github.com/indatawetrust/cypress-autorecord/blob/master/CHANGELOG.md) for more details on all the changes.
