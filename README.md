@@ -20,7 +20,7 @@ Add the plugin to the main configuration as follows
 ```js
 const { defineConfig } = require('cypress');
 const fs = require('fs');
-const autoRecord = require('cypress-autorecord/plugin');
+const autoRecord = require('@cond/cypress-autorecord/plugin');
 
 module.exports = defineConfig({
   e2e: {
@@ -37,7 +37,7 @@ module.exports = defineConfig({
 To allow for auto-recording and stubbing to work, require cypress-autorecord in each of your test file and call the function at the beginning of your parent `describe` block.
 
 ```js
-const autoRecord = require('cypress-autorecord'); // Require the autorecord function
+const autoRecord = require('@cond/cypress-autorecord'); // Require the autorecord function
   
 describe('Home Page', function() { // Do not use arrow functions
   autoRecord(); // Call the autoRecord function at the beginning of your describe block
@@ -58,7 +58,7 @@ That is it! Now, just run your tests and the auto-record will take care of the r
 
 In the case you need to update your mocks for a particular test:
 ```js
-const autoRecord = require('cypress-autorecord');
+const autoRecord = require('@cond/cypress-autorecord');
   
 describe('Home Page', function() {
   autoRecord();
