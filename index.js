@@ -35,7 +35,7 @@ const fixturesFolder = Cypress.config('fixturesFolder').replace(/\\/g, '/');
 const fixturesFolderSubDirectory = fileName.replace(/\./, '-');
 const mocksFolder = path.join(fixturesFolder, '../mocks');
 
-before(function() {
+before(() => {
   if (isCleanMocks) {
     cy.task('cleanMocks');
   }
@@ -66,14 +66,14 @@ module.exports = function autoRecord() {
   // Timestamp for when this test was executed
   let timestamp = null;
 
-  before(function() {
+  before(() => {
     // Get mock data that relates to this spec file
     cy.task('readFile', path.join(mocksFolder, `${fileName}.json`)).then((data) => {
       routesByTestId = data === null ? {} : data;
     });
   });
 
-  beforeEach(function() {
+  beforeEach(() => {
     // Reset routes before each test case
     routes = [];
 
@@ -120,17 +120,17 @@ module.exports = function autoRecord() {
 
     // check to see if test is being force recorded
     // TODO: change this to regex so it only reads from the beginning of the string
-    isTestForceRecord = this.currentTest.title.includes('[r]');
-    this.currentTest.title = isTestForceRecord ? this.currentTest.title.split('[r]')[1].trim() : this.currentTest.title;
+    isTestForceRecord = Cypress.currentTest.title.includes('[r]');
+    Cypress.currentTest.title = isTestForceRecord ? Cypress.currentTest.title.split('[r]')[1].trim() : Cypress.currentTest.title;
 
     // Load stubbed data from local JSON file
     // Do not stub if...
     // This test is being force recorded
     // there are no mock data for this test
     if (
-      !recordTests.includes(this.currentTest.title)
+      !recordTests.includes(Cypress.currentTest.title)
       && !isTestForceRecord
-      && routesByTestId[this.currentTest.title]
+      && routesByTestId[Cypress.currentTest.title]
     ) {
       // This is used to group routes by method type and url (e.g. { GET: { '/api/messages': {...} }})
       const sortedRoutes = {};
@@ -139,9 +139,9 @@ module.exports = function autoRecord() {
       });
 
       // set the browser's Date to the timestamp at which this spec's endpoints were recorded.
-      cy.clock(routesByTestId[this.currentTest.title].timestamp, ['Date']);
+      cy.clock(routesByTestId[Cypress.currentTest.title].timestamp, ['Date']);
 
-      routesByTestId[this.currentTest.title].routes.forEach((request) => {
+      routesByTestId[Cypress.currentTest.title].routes.forEach((request) => {
         if (!sortedRoutes[request.method][request.url]) {
           sortedRoutes[request.method][request.url] = [];
         }
@@ -189,18 +189,18 @@ module.exports = function autoRecord() {
 
     // Store test name if isCleanMocks is true
     if (isCleanMocks) {
-      testNames.push(this.currentTest.title);
+      testNames.push(Cypress.currentTest.title);
     }
 
     cy.clock().invoke('restore');
   });
 
-  afterEach(function() {
+  afterEach(() => {
     // Check to see if the current test already has mock data or if forceRecord is on
     if (
-      (!routesByTestId[this.currentTest.title]
+      (!routesByTestId[Cypress.currentTest.title]
       || isTestForceRecord
-      || recordTests.includes(this.currentTest.title))
+      || recordTests.includes(Cypress.currentTest.title))
       && !isCleanMocks
     ) {
       // Construct endpoint to be saved locally
@@ -227,8 +227,8 @@ module.exports = function autoRecord() {
       });
 
       // Delete fixtures if we are overwriting mock data
-      if (routesByTestId[this.currentTest.title]) {
-        routesByTestId[this.currentTest.title].routes.forEach((route) => {
+      if (routesByTestId[Cypress.currentTest.title]) {
+        routesByTestId[Cypress.currentTest.title].routes.forEach((route) => {
           // If fixtureId exist, delete the json
           if (route.fixtureId) {
             removeFixture.push(path.join(fixturesFolder, fixturesFolderSubDirectory, `${route.fixtureId}.json`));
@@ -238,7 +238,7 @@ module.exports = function autoRecord() {
 
       // Store the endpoint for this test in the mock data object for this file if there are endpoints for this test
       if (endpoints.length > 0) {
-        routesByTestId[this.currentTest.title] = {
+        routesByTestId[Cypress.currentTest.title] = {
           // since REST APIs can pass a timestamp argument, we need to keep track
           // of the time at which this spec was recorded so we can set the browser's Date
           // to that specific time so that the endpoints can be properly stubbed as the
@@ -250,7 +250,7 @@ module.exports = function autoRecord() {
     }
   });
 
-  after(function() {
+  after(() => {
     // Transfer used mock data to new object to be stored locally
     if (isCleanMocks) {
       Object.keys(routesByTestId).forEach((testName) => {

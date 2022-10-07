@@ -38,18 +38,16 @@ To allow for auto-recording and stubbing to work, require cypress-autorecord in 
 ```js
 const autoRecord = require('@cond/cypress-autorecord'); // Require the autorecord function
   
-describe('Home Page', function() { // Do not use arrow functions
+describe('Home Page', () => {
   autoRecord(); // Call the autoRecord function at the beginning of your describe block
   
   // Your hooks (beforeEach, afterEach, etc) goes here
   
-  it('...', function() { // Do not use arrow functions
+  it('...', () => {
     // Your test goes here
   });
 });
 ```
-
-**_NOTE: Do not use ES6 arrow functions for your describe or it callback. This will cause the recording function to break._**
 
 That is it! Now, just run your tests and the auto-record will take care of the rest!
 
@@ -59,10 +57,10 @@ In the case you need to update your mocks for a particular test:
 ```js
 const autoRecord = require('@cond/cypress-autorecord');
   
-describe('Home Page', function() {
+describe('Home Page', () => {
   autoRecord();
   
-  it('[r] my awesome test', function() { // Insert [r] at the beginning of your test name
+  it('[r] my awesome test', () => { // Insert [r] at the beginning of your test name
     // ...
   });
 });
@@ -119,7 +117,7 @@ The mocks will be automatically generated and saved in the `/cypress/mocks/` fol
 Mocks are saved as a simple json object and can be updated manually. This is **not** recommended since any manual change you make will be overwritten when you automatically update the mocks. Leave the data management to cypress-autorecord. Make any modifications to the http calls inside your test so that it will be consistent across recordings.
 
 ```js
-it('should display an error message when send message fails', function() {
+it('should display an error message when send message fails', () => {
   cy.intercept({
     url: '/message',
     method: 'POST',
